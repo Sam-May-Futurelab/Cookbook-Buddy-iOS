@@ -157,6 +157,7 @@ export async function generateLeadMagnetContent(
       targetAudience: request.targetAudience || 'general audience',
       tone: mapTone(request.tone),
       format: request.type || 'checklist',
+      length: request.length || 'standard',
     };
 
     console.log('[AI Service] Request body:', JSON.stringify(requestBody, null, 2));
