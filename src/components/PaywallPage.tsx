@@ -196,13 +196,21 @@ export function PaywallPage({ onClose, trigger = 'manual' }: PaywallPageProps) {
 
         try {
             setPurchasing('restore');
-            const success = await restore();
+            const restoredSubscription = await restore();
 
-            if (success) {
+            if (restoredSubscription && restoredSubscription.isActive && user) {
+                // Get the restored plan from the returned subscription info
+                const restoredPlan = restoredSubscription.plan; // 'free' | 'pro' | 'unlimited'
+
+                // Sync to Firebase with proper fields for API compatibility
+                await updateUserPlan(user.uid, restoredPlan);
                 await refreshProfile();
+
+                const planName = restoredPlan === 'unlimited' ? 'Unlimited' : restoredPlan === 'pro' ? 'Pro' : 'Free';
+
                 triggerNotificationHaptic('success');
                 triggerCelebration();
-                setPurchaseSuccess({ plan: 'pro', name: 'Pro' });
+                setPurchaseSuccess({ plan: restoredPlan, name: planName });
                 setTimeout(() => {
                     onClose?.() || navigate('/dashboard');
                 }, 2500);

@@ -322,6 +322,7 @@ export const updateUserProfile = async (
 
 /**
  * Update user subscription plan
+ * Also sets subscriptionStatus and isPremium for compatibility with Inkfluence API
  */
 export const updateUserPlan = async (
   uid: string,
@@ -329,8 +330,16 @@ export const updateUserPlan = async (
 ): Promise<void> => {
   if (!db) return;
   const userRef = doc(db, 'users', uid);
+
+  // Map plan to subscriptionStatus for Inkfluence API compatibility
+  // The API checks: isPremium || subscriptionStatus === 'premium'
+  const subscriptionStatus = plan === 'unlimited' ? 'premium' : plan === 'pro' ? 'creator' : 'free';
+  const isPremium = plan === 'unlimited' || plan === 'pro';
+
   await updateDoc(userRef, {
     plan,
+    subscriptionStatus,
+    isPremium,
     updatedAt: serverTimestamp(),
   });
 };

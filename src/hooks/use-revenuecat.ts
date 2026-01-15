@@ -88,18 +88,19 @@ export function useRevenueCat() {
         }
     }, []);
 
-    // Restore purchases
-    const restore = useCallback(async (): Promise<boolean> => {
+    // Restore purchases - returns subscription info if successful
+    const restore = useCallback(async (): Promise<SubscriptionInfo | null> => {
         try {
             setIsLoading(true);
             const info = await revenueCatService.restorePurchases();
 
             if (info) {
                 setCustomerInfo(info);
-                setSubscription(revenueCatService.getSubscriptionInfo(info));
-                return true;
+                const subInfo = revenueCatService.getSubscriptionInfo(info);
+                setSubscription(subInfo);
+                return subInfo;
             }
-            return false;
+            return null;
         } catch (error) {
             console.error('[useRevenueCat] Restore error:', error);
             throw error;
