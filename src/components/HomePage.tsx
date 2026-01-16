@@ -2,8 +2,19 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   Sparkle,
-  ArrowRight,
-  Lightning
+  ChefHat,
+  CookingPot,
+  BookBookmark,
+  BookOpen,
+  Calendar,
+  Globe,
+  Lightbulb,
+  Leaf,
+  Heart,
+  Cake,
+  Carrot,
+  Fish,
+  Pizza
 } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,6 +28,16 @@ import { triggerImpactHaptic } from '@/lib/haptics';
 interface HomePageProps {
   onAuthClick: () => void;
 }
+
+const iconMap: Record<string, React.ElementType> = {
+  BookOpen,
+  Calendar,
+  Globe,
+  Lightbulb,
+  Leaf,
+  Heart,
+  Cake
+};
 
 export function HomePage({ onAuthClick }: HomePageProps) {
   const { user } = useAuth();
@@ -44,46 +65,57 @@ export function HomePage({ onAuthClick }: HomePageProps) {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 px-4">
-        {/* Background gradient */}
+      <section className="relative overflow-hidden py-24 px-4">
+        {/* Background gradient & decorations */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
+        <div className="absolute top-20 left-[10%] opacity-10 rotate-12 text-primary select-none">
+          <Carrot size={64} weight="fill" />
+        </div>
+        <div className="absolute top-40 right-[15%] opacity-10 -rotate-12 text-primary select-none">
+          <CookingPot size={64} weight="fill" />
+        </div>
+        <div className="absolute bottom-10 left-[20%] opacity-10 rotate-45 text-primary select-none">
+          <Fish size={56} weight="fill" />
+        </div>
+        <div className="absolute bottom-20 right-[10%] opacity-10 -rotate-12 text-primary select-none hidden sm:block">
+           <Pizza size={64} weight="fill" />
+        </div>
 
         <div className="container relative mx-auto text-center max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            <Badge variant="secondary" className="mb-4 px-4 py-1.5">
-              <Lightning size={14} className="mr-1" weight="fill" />
-              AI-Powered Cookbooks
+            <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm font-medium bg-white/50 backdrop-blur-sm border-primary/20 text-primary-foreground shadow-sm">
+              <ChefHat size={16} className="mr-2 text-primary" weight="fill" />
+              Your Personal AI Sous Chef
             </Badge>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6">
-              Create Delicious{' '}
-              <span className="gradient-text">Recipe Collections</span>{' '}
-              in Seconds
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6 font-serif text-foreground">
+              Cook. Create. <br className="hidden sm:block" />
+              <span className="text-primary italic">Preserve.</span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Turn your culinary ideas into beautiful cookbooks, meal plans, and recipe guides.
-              No cooking degree required.
+            <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+              Transform your scattered recipes into a beautifully designed cookbook. 
+              From grandma's secret sauce to your own culinary experiments.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 size="xl"
-                variant="gradient"
+                variant="default"
                 onClick={handleGetStarted}
-                className="gap-2"
+                className="gap-2 h-14 px-8 text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 rounded-full"
               >
-                <Sparkle size={20} weight="fill" />
-                Create Your First Cookbook
-                <ArrowRight size={20} />
+                <BookBookmark size={22} weight="fill" />
+                Start Your Cookbook
               </Button>
 
-              <p className="text-sm text-muted-foreground">
-                Free to start • No credit card required
+              <p className="text-sm font-medium text-muted-foreground/80 flex items-center gap-1.5 mt-4 sm:mt-0">
+                <Sparkle size={14} className="text-primary" weight="fill" />
+                Powered by Taste-Tested AI
               </p>
             </div>
           </motion.div>
@@ -102,6 +134,7 @@ export function HomePage({ onAuthClick }: HomePageProps) {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {(Object.entries(COOKBOOK_TYPES) as [CookbookType, typeof COOKBOOK_TYPES[CookbookType]][]).map(([type, info]) => {
+              const IconComponent = iconMap[info.icon] || BookOpen;
               return (
                 <motion.div
                   key={type}
@@ -113,10 +146,10 @@ export function HomePage({ onAuthClick }: HomePageProps) {
                     onClick={() => handleTypeSelect(type)}
                   >
                     <CardContent className="p-4 text-center">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                        <span className="text-2xl">{info.icon}</span>
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 text-primary">
+                        <IconComponent size={28} weight="duotone" />
                       </div>
-                      <h3 className="font-semibold mb-1">{info.label}</h3>
+                      <h3 className="font-semibold mb-1 font-serif text-lg">{info.label}</h3>
                       <p className="text-xs text-muted-foreground line-clamp-2">
                         {info.description}
                       </p>

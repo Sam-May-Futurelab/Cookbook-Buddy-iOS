@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkle, MagicWand, Brain, BookOpen, Lightbulb, CheckCircle, PencilLine, FileText, CookingPot } from '@phosphor-icons/react';
+import { Sparkle, MagicWand, Brain, BookOpen, Lightbulb, CheckCircle, PencilLine, FileText, CookingPot, Carrot, Fish, Pizza } from '@phosphor-icons/react';
 import { Progress } from '@/components/ui/progress';
 import { useState, useEffect, useMemo } from 'react';
 
@@ -48,14 +48,14 @@ const generationSteps = [
 
 // Fun facts to show during generation - cooking themed
 const funFacts = [
-  'The average home cook only knows 10 recipes by heart - time to expand!',
-  'Recipes with clear step-by-step instructions are 50% easier to follow',
-  'Having a go-to recipe collection saves 3+ hours of meal planning weekly',
-  'The best cookbooks focus on 7-12 ingredients per recipe',
-  'Adding "Pro Tips" to recipes helps avoid common cooking mistakes',
-  'Meal prepping with good recipes can save you $100+ per month',
-  'Home-cooked meals are typically 50% cheaper than eating out',
-  'A well-organized recipe is the secret to stress-free cooking',
+  'Did you know? Honey is the only food that never spoils.',
+  'Pro tip: Salt your pasta water until it tastes like the ocean.',
+  'Fun fact: Apples belong to the rose family, just like pears and plums.',
+  'Chef secret: A dull knife is more dangerous than a sharp one.',
+  'Did you know? Cranberries bounce when they are ripe.',
+  'Cooking tip: Let your meat rest to keep those juices locked in!',
+  'Fun fact: Wasabi is technically a member of the cabbage family.',
+  'Pound cake got its name because it originally used a pound of every ingredient.',
 ];
 
 export function AILoading({
@@ -158,23 +158,32 @@ export function AILoading({
           <Icon size={32} className={config.color} weight="fill" />
         </motion.div>
 
-        {/* Orbiting particles */}
-        {[...Array(3)].map((_, i) => (
+        {/* Orbiting ingredients */}
+        {[Carrot, Fish, Pizza].map((Icon, i) => (
           <motion.div
             key={i}
-            className={`absolute w-2 h-2 rounded-full bg-primary`}
+            className="absolute text-primary"
             animate={{
               rotate: 360,
             }}
             transition={{
-              duration: 3 + i,
+              duration: 4 + i,
               repeat: Infinity,
               ease: 'linear',
             }}
             style={{
-              transformOrigin: '50px 50px',
+              // Orbit around the center content
+              transformOrigin: 'center center',
+              // Initial offset radius
+              width: '100px', 
+              height: '100px',
+              position: 'absolute',
             }}
-          />
+          >
+             <div className="absolute top-0 left-1/2 -translate-x-1/2">
+               <Icon size={24} weight="fill" />
+             </div>
+          </motion.div>
         ))}
       </div>
 

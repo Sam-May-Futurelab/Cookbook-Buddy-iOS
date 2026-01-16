@@ -4,25 +4,36 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    /* Gourmet Palette - Warm Cream & Deep Spices */
+    --background: 40 20% 98%;
     --foreground: 20 14.3% 4.1%;
+    
     --card: 0 0% 100%;
     --card-foreground: 20 14.3% 4.1%;
+    
     --popover: 0 0% 100%;
     --popover-foreground: 20 14.3% 4.1%;
-    --primary: 24.6 95% 53.1%;
-    --primary-foreground: 60 9.1% 97.8%;
-    --secondary: 60 4.8% 95.9%;
+    
+    /* Burnt Orange Primary */
+    --primary: 25 85% 55%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Sage Green Secondary */
+    --secondary: 100 15% 94%;
     --secondary-foreground: 24 9.8% 10%;
-    --muted: 60 4.8% 95.9%;
+    
+    --muted: 40 10% 94%;
     --muted-foreground: 25 5.3% 44.7%;
-    --accent: 60 4.8% 95.9%;
+    
+    --accent: 40 10% 94%;
     --accent-foreground: 24 9.8% 10%;
+    
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 60 9.1% 97.8%;
-    --border: 20 5.9% 90%;
-    --input: 20 5.9% 90%;
-    --ring: 24.6 95% 53.1%;
+    
+    --border: 30 15% 90%;
+    --input: 30 15% 90%;
+    --ring: 25 85% 55%;
     --radius: 0.75rem;
   }
 
@@ -65,6 +76,10 @@
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
   }
 
   /* iOS Safe Areas */
