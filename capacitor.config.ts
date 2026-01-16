@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.leadmagnet.ai',
-  appName: 'Lead Magnet AI',
+  appId: 'com.cookbook.buddy',
+  appName: 'Cookbook Buddy',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
@@ -12,7 +12,7 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 0,
       launchAutoHide: true,
-      backgroundColor: '#0f0f23',
+      backgroundColor: '#ea580c',
       showSpinner: false,
       splashFullScreen: true,
       splashImmersive: true,

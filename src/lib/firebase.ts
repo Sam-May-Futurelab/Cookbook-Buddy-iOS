@@ -271,7 +271,7 @@ export const getOrCreateUserProfile = async (user: User): Promise<UserProfile> =
       displayName: user.displayName || undefined,
       photoURL: user.photoURL || undefined,
       plan: 'free',
-      leadMagnetsCreated: 0,
+      cookbooksCreated: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -291,7 +291,7 @@ export const getOrCreateUserProfile = async (user: User): Promise<UserProfile> =
     displayName: user.displayName || undefined,
     photoURL: user.photoURL || undefined,
     plan: 'free',
-    leadMagnetsCreated: 0,
+    cookbooksCreated: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -360,7 +360,7 @@ export const createLeadMagnet = async (
     return `demo-${Date.now()}`;
   }
 
-  const leadMagnetsRef = collection(db, 'leadMagnets');
+  const leadMagnetsRef = collection(db, 'cookbooks');
   const newDocRef = doc(leadMagnetsRef);
 
   await setDoc(newDocRef, {
@@ -383,7 +383,7 @@ export const getUserLeadMagnets = async (userId: string): Promise<LeadMagnet[]> 
     return [];
   }
 
-  const leadMagnetsRef = collection(db, 'leadMagnets');
+  const leadMagnetsRef = collection(db, 'cookbooks');
   const q = query(
     leadMagnetsRef,
     where('userId', '==', userId),
@@ -408,7 +408,7 @@ export const getUserLeadMagnets = async (userId: string): Promise<LeadMagnet[]> 
 export const getLeadMagnet = async (id: string): Promise<LeadMagnet | null> => {
   if (!db) return null;
 
-  const docRef = doc(db, 'leadMagnets', id);
+  const docRef = doc(db, 'cookbooks', id);
   const docSnap = await getDoc(docRef);
 
   if (!docSnap.exists()) return null;
@@ -430,7 +430,7 @@ export const updateLeadMagnet = async (
   updates: Partial<LeadMagnet>
 ): Promise<void> => {
   if (!db) return;
-  const docRef = doc(db, 'leadMagnets', id);
+  const docRef = doc(db, 'cookbooks', id);
   await updateDoc(docRef, {
     ...updates,
     updatedAt: serverTimestamp(),
@@ -442,7 +442,7 @@ export const updateLeadMagnet = async (
  */
 export const deleteLeadMagnet = async (id: string): Promise<void> => {
   if (!db) return;
-  const docRef = doc(db, 'leadMagnets', id);
+  const docRef = doc(db, 'cookbooks', id);
   await deleteDoc(docRef);
 };
 
@@ -474,12 +474,12 @@ export const checkAndIncrementUsage = async (
     }
 
     const userData = userSnap.data() as UserProfile;
-    const currentCount = userData.leadMagnetsCreated || 0;
+    const currentCount = userData.cookbooksCreated || 0;
 
     // Check if under limit
     if (currentCount < maxLeadMagnets) {
       await updateDoc(userRef, {
-        leadMagnetsCreated: currentCount + 1,
+        cookbooksCreated: currentCount + 1,
         updatedAt: serverTimestamp(),
       });
       return {

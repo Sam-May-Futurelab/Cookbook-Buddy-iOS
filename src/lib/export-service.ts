@@ -2,15 +2,15 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { getApiUrl } from './api';
-import type { LeadMagnet, UserProfile } from './types';
+import type { Cookbook, UserProfile } from './types';
 import { PLAN_LIMITS } from './types';
-import { LEAD_MAGNET_TYPES } from './templates';
+import { COOKBOOK_TYPES } from './templates';
 
 export type ExportFormat = 'pdf' | 'html';
 
 interface ExportOptions {
     format: ExportFormat;
-    leadMagnet: LeadMagnet;
+    leadMagnet: Cookbook;
     userPlan: UserProfile['plan'];
     contentElement?: HTMLElement;
 }
@@ -36,8 +36,8 @@ export function canExportFormat(format: ExportFormat, plan: UserProfile['plan'])
 /**
  * Generate HTML document for export
  */
-function generateExportHTML(leadMagnet: LeadMagnet): string {
-    const primaryColor = leadMagnet.design?.primaryColor || '#8B5CF6';
+function generateExportHTML(cookbook: Cookbook): string {
+    const primaryColor = cookbook.design?.primaryColor || '#ea580c';
 
     return `
 <!DOCTYPE html>
@@ -45,7 +45,7 @@ function generateExportHTML(leadMagnet: LeadMagnet): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${leadMagnet.title}</title>
+    <title>${cookbook.title}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         @page {
@@ -190,12 +190,12 @@ function generateExportHTML(leadMagnet: LeadMagnet): string {
 </head>
 <body>
     <div class="header">
-        <h1 class="title">${leadMagnet.title}</h1>
-        <span class="badge">${LEAD_MAGNET_TYPES[leadMagnet.type]?.label || 'Lead Magnet'}</span>
+        <h1 class="title">${cookbook.title}</h1>
+        <span class="badge">${COOKBOOK_TYPES[cookbook.type]?.label || 'Cookbook'}</span>
     </div>
     
     <div class="content">
-        ${leadMagnet.content}
+        ${cookbook.content}
     </div>
 </body>
 </html>`;
@@ -205,9 +205,9 @@ function generateExportHTML(leadMagnet: LeadMagnet): string {
  * iOS-specific PDF export using server-side generation
  * Sends HTML to API, receives PDF, saves and shares via native iOS share sheet
  */
-async function exportToPDFiOS(leadMagnet: LeadMagnet): Promise<ExportResult> {
+async function exportToPDFiOS(cookbook: Cookbook): Promise<ExportResult> {
     try {
-        const html = generateExportHTML(leadMagnet);
+        const html = generateExportHTML(cookbook);
 
         // Use Inkfluence's PDF generation API
         const apiUrl = getApiUrl('/api/generate-pdf');
@@ -221,7 +221,7 @@ async function exportToPDFiOS(leadMagnet: LeadMagnet): Promise<ExportResult> {
             },
             body: JSON.stringify({
                 html,
-                title: leadMagnet.title,
+                title: cookbook.title,
                 platform: 'ios',
             }),
         });
@@ -246,7 +246,7 @@ async function exportToPDFiOS(leadMagnet: LeadMagnet): Promise<ExportResult> {
         });
 
         // Save to cache directory
-        const filename = `${leadMagnet.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+        const filename = `${cookbook.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
 
         const savedFile = await Filesystem.writeFile({
             path: filename,
@@ -259,8 +259,8 @@ async function exportToPDFiOS(leadMagnet: LeadMagnet): Promise<ExportResult> {
         // Open iOS share sheet
         try {
             await Share.share({
-                title: leadMagnet.title,
-                text: `${leadMagnet.title} - PDF Export`,
+                title: cookbook.title,
+                text: `${cookbook.title} - PDF Export`,
                 url: savedFile.uri,
                 dialogTitle: 'Share your PDF',
             });
@@ -283,9 +283,9 @@ async function exportToPDFiOS(leadMagnet: LeadMagnet): Promise<ExportResult> {
 /**
  * Web PDF export using print dialog
  */
-async function exportToPDFWeb(leadMagnet: LeadMagnet): Promise<ExportResult> {
+async function exportToPDFWeb(cookbook: Cookbook): Promise<ExportResult> {
     try {
-        const html = generateExportHTML(leadMagnet);
+        const html = generateExportHTML(cookbook);
 
         // Open print window
         const printWindow = window.open('', '_blank');
@@ -315,21 +315,21 @@ async function exportToPDFWeb(leadMagnet: LeadMagnet): Promise<ExportResult> {
 /**
  * Export as PDF - routes to iOS or Web implementation
  */
-async function exportAsPDF(leadMagnet: LeadMagnet): Promise<ExportResult> {
+async function exportAsPDF(cookbook: Cookbook): Promise<ExportResult> {
     if (isIOSNative()) {
-        return exportToPDFiOS(leadMagnet);
+        return exportToPDFiOS(cookbook);
     }
-    return exportToPDFWeb(leadMagnet);
+    return exportToPDFWeb(cookbook);
 }
 
 /**
  * Export as HTML file
  */
-async function exportAsHTML(leadMagnet: LeadMagnet): Promise<ExportResult> {
+async function exportAsHTML(cookbook: Cookbook): Promise<ExportResult> {
     try {
-        const html = generateExportHTML(leadMagnet);
+        const html = generateExportHTML(cookbook);
         const blob = new Blob([html], { type: 'text/html' });
-        const filename = `${leadMagnet.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.html`;
+        const filename = `${cookbook.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.html`;
 
         return { success: true, blob, filename };
     } catch (error) {
@@ -342,7 +342,7 @@ async function exportAsHTML(leadMagnet: LeadMagnet): Promise<ExportResult> {
  * Main export function
  */
 export async function exportLeadMagnet(options: ExportOptions): Promise<ExportResult> {
-    const { format, leadMagnet, userPlan } = options;
+    const { format, leadMagnet: cookbook, userPlan } = options;
 
     // Check if user can export in this format
     if (!canExportFormat(format, userPlan)) {
@@ -354,9 +354,9 @@ export async function exportLeadMagnet(options: ExportOptions): Promise<ExportRe
 
     switch (format) {
         case 'pdf':
-            return exportAsPDF(leadMagnet);
+            return exportAsPDF(cookbook);
         case 'html':
-            return exportAsHTML(leadMagnet);
+            return exportAsHTML(cookbook);
         default:
             return { success: false, error: 'Unknown export format' };
     }

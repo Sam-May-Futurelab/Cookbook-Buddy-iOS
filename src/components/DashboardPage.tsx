@@ -20,21 +20,21 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
-import { useLeadMagnetStore } from '@/stores/lead-magnet-store';
+import { useCookbookStore } from '@/stores/lead-magnet-store';
 import { getUserLeadMagnets, deleteLeadMagnet } from '@/lib/firebase';
 import { exportLeadMagnet, shareExport } from '@/lib/export-service';
 import { PLAN_LIMITS } from '@/lib/types';
 import { formatRelativeTime } from '@/lib/utils';
-import type { LeadMagnet } from '@/lib/types';
+import type { Cookbook } from '@/lib/types';
 import { triggerImpactHaptic, triggerNotificationHaptic } from '@/lib/haptics';
 
 export function DashboardPage() {
   const navigate = useNavigate();
   const { user, userProfile } = useAuth();
-  const { leadMagnets, setLeadMagnets, removeLeadMagnet, updateLeadMagnet } = useLeadMagnetStore();
+  const { cookbooks, setCookbooks, removeCookbook, updateCookbook } = useCookbookStore();
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedMagnet, setSelectedMagnet] = useState<LeadMagnet | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<LeadMagnet | null>(null);
+  const [selectedCookbook, setSelectedCookbook] = useState<Cookbook | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<Cookbook | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [exportingId, setExportingId] = useState<string | null>(null);
   const [exportProgress, setExportProgress] = useState('Preparing export...');
@@ -43,32 +43,32 @@ export function DashboardPage() {
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const loadLeadMagnets = async () => {
+    const loadCookbooks = async () => {
       if (!user) {
         setIsLoading(false);
         return;
       }
 
       try {
-        const firestoreMagnets = await getUserLeadMagnets(user.uid);
+        const firestoreCookbooks = await getUserLeadMagnets(user.uid);
         // Merge Firestore data with local store (local takes priority for same IDs)
-        const localMagnets = leadMagnets.filter(m => m.id.startsWith('local-'));
-        const mergedMagnets = [...firestoreMagnets, ...localMagnets];
-        setLeadMagnets(mergedMagnets);
+        const localCookbooks = cookbooks.filter(m => m.id.startsWith('local-'));
+        const mergedCookbooks = [...firestoreCookbooks, ...localCookbooks];
+        setCookbooks(mergedCookbooks);
       } catch (error) {
-        console.error('Error loading lead magnets from Firestore:', error);
+        console.error('Error loading cookbooks from Firestore:', error);
         // Keep using local store data (already persisted)
-        console.log('Using locally stored lead magnets instead');
+        console.log('Using locally stored cookbooks instead');
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadLeadMagnets();
+    loadCookbooks();
   }, [user]);
 
-  const handleDelete = async (magnet: LeadMagnet) => {
-    setDeleteConfirm(magnet);
+  const handleDelete = async (cookbook: Cookbook) => {
+    setDeleteConfirm(cookbook);
     triggerImpactHaptic('medium');
   };
 
@@ -87,16 +87,16 @@ export function DashboardPage() {
     }
 
     // Always remove from local state (persisted to localStorage)
-    removeLeadMagnet(deleteConfirm.id);
+    removeCookbook(deleteConfirm.id);
     triggerNotificationHaptic('success');
     setDeleteConfirm(null);
     setIsDeleting(false);
   };
 
-  const handleExportPDF = async (magnet: LeadMagnet) => {
+  const handleExportPDF = async (cookbook: Cookbook) => {
     const plan = userProfile?.plan || 'free';
 
-    setExportingId(magnet.id);
+    setExportingId(cookbook.id);
     setExportProgress('Preparing export...');
     triggerImpactHaptic('medium');
 
@@ -104,7 +104,7 @@ export function DashboardPage() {
       setExportProgress('Generating PDF...');
       const result = await exportLeadMagnet({
         format: 'pdf',
-        leadMagnet: magnet,
+        leadMagnet: cookbook,
         userPlan: plan,
         contentElement: contentRef.current!,
       });
@@ -147,18 +147,18 @@ export function DashboardPage() {
   };
 
   const handleStartEdit = () => {
-    if (selectedMagnet) {
-      setEditedContent(htmlToText(selectedMagnet.content));
+    if (selectedCookbook) {
+      setEditedContent(htmlToText(selectedCookbook.content));
       setIsEditing(true);
       triggerImpactHaptic('light');
     }
   };
 
   const handleSaveEdit = () => {
-    if (selectedMagnet) {
+    if (selectedCookbook) {
       const newHtml = textToHtml(editedContent);
-      updateLeadMagnet(selectedMagnet.id, { content: newHtml });
-      setSelectedMagnet({ ...selectedMagnet, content: newHtml });
+      updateCookbook(selectedCookbook.id, { content: newHtml });
+      setSelectedCookbook({ ...selectedCookbook, content: newHtml });
       setIsEditing(false);
       triggerNotificationHaptic('success');
     }
@@ -171,18 +171,18 @@ export function DashboardPage() {
   };
 
   const handleCloseModal = () => {
-    setSelectedMagnet(null);
+    setSelectedCookbook(null);
     setIsEditing(false);
     setEditedContent('');
   };
 
   const limits = userProfile ? PLAN_LIMITS[userProfile.plan] : PLAN_LIMITS.free;
-  // Only count lead magnets belonging to current user
-  const userLeadMagnets = user ? leadMagnets.filter(m => m.userId === user.uid) : [];
-  const leadMagnetCount = userProfile?.leadMagnetsCreated || userLeadMagnets.length;
-  const usagePercent = limits.maxLeadMagnets === -1
+  // Only count cookbooks belonging to current user
+  const userCookbooks = user ? cookbooks.filter(m => m.userId === user.uid) : [];
+  const cookbookCount = userProfile?.cookbooksCreated || userCookbooks.length;
+  const usagePercent = limits.maxCookbooks === -1
     ? 0
-    : (leadMagnetCount / limits.maxLeadMagnets) * 100;
+    : (cookbookCount / limits.maxCookbooks) * 100;
 
   if (isLoading) {
     return (
@@ -192,6 +192,8 @@ export function DashboardPage() {
     );
   }
 
+  const isAtLimit = limits.maxCookbooks !== -1 && cookbookCount >= limits.maxCookbooks;
+
   return (
     <div className="min-h-screen py-4 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto space-y-4">
@@ -200,7 +202,7 @@ export function DashboardPage() {
           <div className="space-y-0.5">
             <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-sm text-muted-foreground">
-              Manage and track your lead magnets
+              Manage and view your cookbooks
             </p>
           </div>
 
@@ -208,12 +210,16 @@ export function DashboardPage() {
             size="default"
             onClick={() => {
               triggerImpactHaptic('medium');
-              navigate('/create');
+              if (isAtLimit) {
+                navigate('/paywall?trigger=limit');
+              } else {
+                navigate('/create');
+              }
             }}
             className="gap-2 shadow-sm"
           >
             <Plus size={18} weight="bold" />
-            Create Lead Magnet
+            {isAtLimit ? 'Upgrade to Create More' : 'Create Cookbook'}
           </Button>
         </div>
 
@@ -226,7 +232,7 @@ export function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {leadMagnetCount} / {limits.maxLeadMagnets === -1 ? '∞' : limits.maxLeadMagnets}
+                {cookbookCount} / {limits.maxCookbooks === -1 ? '∞' : limits.maxCookbooks}
               </div>
               <div className="mt-2 h-1.5 w-full bg-secondary rounded-full overflow-hidden">
                 <div
@@ -252,17 +258,17 @@ export function DashboardPage() {
           </Card>
         </div>
 
-        {/* Lead Magnets Grid */}
+        {/* Cookbooks Grid */}
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold tracking-tight">Recent Projects</h2>
-          {userLeadMagnets.length === 0 ? (
+          <h2 className="text-lg font-semibold tracking-tight">Your Cookbooks</h2>
+          {userCookbooks.length === 0 ? (
             <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed">
               <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-4">
                 <FolderOpen size={24} className="text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-medium mb-1">No lead magnets yet</h3>
+              <h3 className="text-lg font-medium mb-1">No cookbooks yet</h3>
               <p className="text-muted-foreground mb-6 max-w-sm">
-                Create your first lead magnet to start growing your email list with AI-generated content.
+                Create your first cookbook to start building your recipe collection with AI.
               </p>
               <Button
                 onClick={() => navigate('/create')}
@@ -274,9 +280,9 @@ export function DashboardPage() {
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {userLeadMagnets.map((magnet, index) => (
+              {userCookbooks.map((cookbook, index) => (
                 <motion.div
-                  key={magnet.id}
+                  key={cookbook.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
@@ -286,10 +292,10 @@ export function DashboardPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div className="space-y-1 flex-1">
                           <CardTitle className="text-base font-semibold line-clamp-2 leading-tight">
-                            {magnet.title}
+                            {cookbook.title}
                           </CardTitle>
                           <p className="text-xs text-muted-foreground">
-                            {formatRelativeTime(magnet.createdAt)}
+                            {formatRelativeTime(cookbook.createdAt)}
                           </p>
                         </div>
                       </div>
@@ -298,12 +304,12 @@ export function DashboardPage() {
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <FileText size={14} />
-                          <span>{magnet.wordCount} words</span>
+                          <span>{cookbook.wordCount} words</span>
                         </div>
-                        {magnet.itemCount && (
+                        {cookbook.itemCount && (
                           <div className="flex items-center gap-1">
                             <ListChecks size={14} />
-                            <span>{magnet.itemCount} items</span>
+                            <span>{cookbook.itemCount} recipes</span>
                           </div>
                         )}
                       </div>
@@ -316,7 +322,7 @@ export function DashboardPage() {
                           className="h-8 text-xs"
                           onClick={() => {
                             triggerImpactHaptic('light');
-                            setSelectedMagnet(magnet);
+                            setSelectedCookbook(cookbook);
                           }}
                         >
                           Preview
@@ -325,10 +331,10 @@ export function DashboardPage() {
                           variant="outline"
                           size="sm"
                           className="h-8 text-xs gap-1.5"
-                          disabled={exportingId === magnet.id}
-                          onClick={() => handleExportPDF(magnet)}
+                          disabled={exportingId === cookbook.id}
+                          onClick={() => handleExportPDF(cookbook)}
                         >
-                          {exportingId === magnet.id ? (
+                          {exportingId === cookbook.id ? (
                             <>
                               <CircleNotch size={12} className="animate-spin" />
                               <span className="text-[10px]">{exportProgress.split(' ')[0]}</span>
@@ -343,7 +349,7 @@ export function DashboardPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                        onClick={() => handleDelete(magnet)}
+                        onClick={() => handleDelete(cookbook)}
                       >
                         <Trash size={14} />
                       </Button>
@@ -358,7 +364,7 @@ export function DashboardPage() {
 
         {/* Preview Modal */}
         <AnimatePresence>
-          {selectedMagnet && (
+          {selectedCookbook && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -375,7 +381,7 @@ export function DashboardPage() {
               >
                 <div className="p-6 border-b shrink-0 bg-background/95 backdrop-blur z-10">
                   <div className="flex items-start justify-between gap-4 mb-4">
-                    <h2 className="text-xl font-bold leading-tight">{selectedMagnet.title}</h2>
+                    <h2 className="text-xl font-bold leading-tight">{selectedCookbook.title}</h2>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -418,10 +424,10 @@ export function DashboardPage() {
                         <Button
                           variant="outline"
                           className="flex-1 justify-center"
-                          disabled={exportingId === selectedMagnet.id}
-                          onClick={() => handleExportPDF(selectedMagnet)}
+                          disabled={exportingId === selectedCookbook.id}
+                          onClick={() => handleExportPDF(selectedCookbook)}
                         >
-                          {exportingId === selectedMagnet.id ? (
+                          {exportingId === selectedCookbook.id ? (
                             <CircleNotch size={16} className="animate-spin mr-2" />
                           ) : (
                             <Download size={16} className="mr-2" />
@@ -534,13 +540,13 @@ export function DashboardPage() {
                       className="edit-textarea"
                       value={editedContent}
                       onChange={(e) => setEditedContent(e.target.value)}
-                      placeholder="Edit your lead magnet content..."
+                      placeholder="Edit your cookbook content..."
                     />
                   ) : (
                     <div
                       ref={contentRef}
                       className="preview-content"
-                      dangerouslySetInnerHTML={{ __html: selectedMagnet.content }}
+                      dangerouslySetInnerHTML={{ __html: selectedCookbook.content }}
                     />
                   )}
                 </div>
@@ -571,7 +577,7 @@ export function DashboardPage() {
                     <Warning size={24} className="text-destructive" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">Delete Lead Magnet?</h3>
+                    <h3 className="text-lg font-semibold">Delete Cookbook?</h3>
                     <p className="text-sm text-muted-foreground">This action cannot be undone</p>
                   </div>
                 </div>

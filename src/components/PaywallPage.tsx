@@ -40,7 +40,7 @@ const PRICING_TIERS: PricingTier[] = [
         description: 'Try it out',
         icon: <Sparkle size={24} weight="fill" />,
         features: [
-            '1 lead magnet',
+            '1 cookbook',
             'PDF export',
             'Basic templates',
         ],
@@ -54,18 +54,18 @@ const PRICING_TIERS: PricingTier[] = [
         name: 'Pro',
         price: '$9.99',
         period: '/month',
-        description: 'For creators',
+        description: 'For home cooks',
         icon: <Star size={24} weight="fill" />,
         popular: true,
         features: [
-            '10 lead magnets',
+            '10 cookbooks',
             'PDF & PNG export',
-            'Longer lead magnets (up to 3k words)',
+            'Larger cookbooks (up to 15 recipes)',
             'All templates',
             'Priority support',
         ],
         buttonText: 'Start Pro',
-        productId: 'com.leadmagnet.ai.pro.monthly',
+        productId: 'com.cookbook.buddy.pro.monthly',
     },
     {
         id: 'unlimited',
@@ -75,15 +75,15 @@ const PRICING_TIERS: PricingTier[] = [
         description: 'Best value',
         icon: <Infinity size={24} weight="bold" />,
         features: [
-            'Unlimited lead magnets',
+            'Unlimited cookbooks',
             'All export formats',
-            'Longer lead magnets (up to 3k words)',
+            'Larger cookbooks (up to 15 recipes)',
             'All templates',
             'Priority generation',
             'Lifetime access',
         ],
         buttonText: 'Get Lifetime',
-        productId: 'com.leadmagnet.ai.unlimited',
+        productId: 'com.cookbook.buddy.unlimited',
     },
 ];
 
@@ -110,13 +110,13 @@ export function PaywallPage({ onClose, trigger = 'manual' }: PaywallPageProps) {
     const getTriggerMessage = () => {
         switch (trigger) {
             case 'limit':
-                return "You've reached your free limit! Upgrade to create more lead magnets.";
+                return "You've reached your free limit! Upgrade to create more cookbooks.";
             case 'export':
                 return 'This export format requires an upgrade.';
             case 'template':
                 return 'Premium templates require an upgrade.';
             default:
-                return 'Unlock the full power of LeadMagnet AI';
+                return 'Unlock the full power of Cookbook Buddy';
         }
     };
 

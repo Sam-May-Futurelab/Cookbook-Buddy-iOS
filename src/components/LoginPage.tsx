@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GoogleLogo, AppleLogo, Lightning, Sparkle, FilePdf, Gift } from '@phosphor-icons/react';
+import { GoogleLogo, AppleLogo, Sparkle, FilePdf, Gift, CookingPot } from '@phosphor-icons/react';
 import { signInWithGoogle, signInWithApple } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -45,27 +45,27 @@ export function LoginPage() {
                 <div className="flex flex-col items-center text-center space-y-6">
                     {/* Logo/Icon */}
                     <div className="relative">
-                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-xl shadow-primary/20 ring-4 ring-background">
-                            <img src="/app-icon.png" alt="Lead Magnet AI" className="w-14 h-14 object-contain" />
+                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center shadow-xl shadow-primary/20 ring-4 ring-background overflow-hidden">
+                            <img src="/logo.png" alt="Cookbook Buddy" className="w-full h-full object-cover" />
                         </div>
                         <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl bg-background flex items-center justify-center shadow-md">
                             <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
-                                <Lightning className="w-5 h-5 text-secondary-foreground" weight="fill" />
+                                <CookingPot className="w-5 h-5 text-secondary-foreground" weight="fill" />
                             </div>
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <h1 className="text-3xl font-bold tracking-tight">Lead Magnet AI</h1>
+                        <h1 className="text-3xl font-bold tracking-tight">Cookbook Buddy</h1>
                         <p className="text-muted-foreground text-lg max-w-[280px] mx-auto leading-relaxed">
-                            Create stunning lead magnets in seconds with AI
+                            Create beautiful cookbooks and recipe collections with AI
                         </p>
                     </div>
 
                     {/* Features preview */}
                     <div className="grid grid-cols-3 gap-4 w-full pt-4">
                         {[
-                            { label: 'AI-Powered', Icon: Sparkle, color: 'text-amber-500' },
+                            { label: 'AI Recipes', Icon: Sparkle, color: 'text-amber-500' },
                             { label: 'Export PDF', Icon: FilePdf, color: 'text-red-500' },
                             { label: 'Free Tier', Icon: Gift, color: 'text-emerald-500' },
                         ].map(({ label, Icon, color }) => (

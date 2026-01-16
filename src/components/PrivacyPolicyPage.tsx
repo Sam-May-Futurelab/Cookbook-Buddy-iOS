@@ -25,7 +25,7 @@ export function PrivacyPolicyPage() {
                     <section className="mb-8">
                         <h2 className="text-xl font-semibold mb-4">1. Introduction</h2>
                         <p className="text-muted-foreground mb-4">
-                            LeadMagnet AI ("we," "our," or "us") respects your privacy and is committed
+                            Cookbook Buddy ("we," "our," or "us") respects your privacy and is committed
                             to protecting your personal data. This privacy policy explains how we collect,
                             use, and safeguard your information when you use our mobile application.
                         </p>
@@ -46,7 +46,7 @@ export function PrivacyPolicyPage() {
 
                         <h3 className="text-lg font-medium mb-2">2.2 Content You Create</h3>
                         <p className="text-muted-foreground mb-4">
-                            We store the lead magnets and content you create within the app, including:
+                            We store the cookbooks and content you create within the app, including:
                         </p>
                         <ul className="list-disc pl-6 text-muted-foreground mb-4">
                             <li>Titles and descriptions</li>

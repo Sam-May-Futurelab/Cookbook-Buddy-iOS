@@ -1,29 +1,29 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { LeadMagnet } from '@/lib/types';
+import type { Cookbook } from '@/lib/types';
 
-interface LeadMagnetState {
-  // Current lead magnet being created/edited
-  current: Partial<LeadMagnet> | null;
+interface CookbookState {
+  // Current cookbook being created/edited
+  current: Partial<Cookbook> | null;
 
   // Generation state
   isGenerating: boolean;
   generationProgress: number;
   generationMessage: string;
 
-  // User's lead magnets (persisted locally)
-  leadMagnets: LeadMagnet[];
+  // User's cookbooks (persisted locally)
+  cookbooks: Cookbook[];
   isLoading: boolean;
 
   // Actions
-  setCurrent: (leadMagnet: Partial<LeadMagnet> | null) => void;
-  updateCurrent: (updates: Partial<LeadMagnet>) => void;
+  setCurrent: (cookbook: Partial<Cookbook> | null) => void;
+  updateCurrent: (updates: Partial<Cookbook>) => void;
   setGenerating: (isGenerating: boolean, message?: string) => void;
   setProgress: (progress: number) => void;
-  setLeadMagnets: (leadMagnets: LeadMagnet[]) => void;
-  addLeadMagnet: (leadMagnet: LeadMagnet) => void;
-  updateLeadMagnet: (id: string, updates: Partial<LeadMagnet>) => void;
-  removeLeadMagnet: (id: string) => void;
+  setCookbooks: (cookbooks: Cookbook[]) => void;
+  addCookbook: (cookbook: Cookbook) => void;
+  updateCookbook: (id: string, updates: Partial<Cookbook>) => void;
+  removeCookbook: (id: string) => void;
   reset: () => void;
 }
 
@@ -32,16 +32,16 @@ const initialState = {
   isGenerating: false,
   generationProgress: 0,
   generationMessage: '',
-  leadMagnets: [],
+  cookbooks: [],
   isLoading: false,
 };
 
-export const useLeadMagnetStore = create<LeadMagnetState>()(
+export const useCookbookStore = create<CookbookState>()(
   persist(
     (set, get) => ({
       ...initialState,
 
-      setCurrent: (leadMagnet) => set({ current: leadMagnet }),
+      setCurrent: (cookbook) => set({ current: cookbook }),
 
       updateCurrent: (updates) => set((state) => ({
         current: state.current ? { ...state.current, ...updates } : updates,
@@ -55,37 +55,41 @@ export const useLeadMagnetStore = create<LeadMagnetState>()(
 
       setProgress: (progress) => set({ generationProgress: progress }),
 
-      setLeadMagnets: (leadMagnets) => set({ leadMagnets, isLoading: false }),
+      setCookbooks: (cookbooks) => set({ cookbooks, isLoading: false }),
 
-      addLeadMagnet: (leadMagnet) => set((state) => ({
-        leadMagnets: [leadMagnet, ...state.leadMagnets],
+      addCookbook: (cookbook) => set((state) => ({
+        cookbooks: [cookbook, ...state.cookbooks],
       })),
 
-      updateLeadMagnet: (id, updates) => set((state) => ({
-        leadMagnets: state.leadMagnets.map((lm) =>
-          lm.id === id ? { ...lm, ...updates, updatedAt: new Date() } : lm
+      updateCookbook: (id, updates) => set((state) => ({
+        cookbooks: state.cookbooks.map((cb) =>
+          cb.id === id ? { ...cb, ...updates, updatedAt: new Date() } : cb
         ),
       })),
 
-      removeLeadMagnet: (id) => set((state) => ({
-        leadMagnets: state.leadMagnets.filter((lm) => lm.id !== id),
+      removeCookbook: (id) => set((state) => ({
+        cookbooks: state.cookbooks.filter((cb) => cb.id !== id),
       })),
 
       reset: () => set(initialState),
     }),
     {
-      name: 'lead-magnet-storage',
+      name: 'cookbook-storage',
       partialize: (state) => ({
-        leadMagnets: state.leadMagnets,
+        cookbooks: state.cookbooks,
       }),
     }
   )
 );
 
+// Legacy alias for compatibility
+export const useLeadMagnetStore = useCookbookStore;
+
 // Selector hooks for specific parts of state
-export const useCurrentLeadMagnet = () => useLeadMagnetStore((s) => s.current);
-export const useIsGenerating = () => useLeadMagnetStore((s) => s.isGenerating);
-export const useGenerationProgress = () => useLeadMagnetStore((s) => ({
+export const useCurrentCookbook = () => useCookbookStore((s) => s.current);
+export const useCurrentLeadMagnet = useCurrentCookbook; // Legacy alias
+export const useIsGenerating = () => useCookbookStore((s) => s.isGenerating);
+export const useGenerationProgress = () => useCookbookStore((s) => ({
   progress: s.generationProgress,
   message: s.generationMessage,
 }));

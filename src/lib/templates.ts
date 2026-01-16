@@ -1,9 +1,9 @@
-import type { LeadMagnetTemplate, LeadMagnetType } from './types';
+import type { CookbookTemplate, CookbookType } from './types';
 
 /**
- * Lead Magnet Type Metadata
+ * Cookbook Type Metadata
  */
-export const LEAD_MAGNET_TYPES: Record<LeadMagnetType, {
+export const COOKBOOK_TYPES: Record<CookbookType, {
   label: string;
   description: string;
   icon: string;
@@ -11,116 +11,117 @@ export const LEAD_MAGNET_TYPES: Record<LeadMagnetType, {
   examples: string[];
   structureHint: string;
 }> = {
-  checklist: {
-    label: 'Checklist',
-    description: 'Calculated steps to achieve a goal',
-    icon: 'CheckSquare',
+  'recipe-collection': {
+    label: 'Recipe Collection',
+    description: 'Curated collection of recipes around a theme',
+    icon: 'BookOpen',
     defaultItemCount: 10,
     examples: [
-      'Product Launch Checklist',
-      'Morning Routine Checklist',
-      'Website Audit Checklist',
+      '30-Minute Weeknight Dinners',
+      'Holiday Cookie Collection',
+      'One-Pot Comfort Meals',
     ],
-    structureHint: `Create a professional, high-value lead magnet with:
-1. **Compelling Introduction** - Hook the reader
-2. **Clear Sections** - Organize content
-3. **Actionable Items** - Specific tasks`,
+    structureHint: `Create a beautiful recipe collection with:
+1. **Appetizing Introduction** - Set the theme
+2. **Clear Recipe Cards** - Ingredients & steps
+3. **Pro Tips** - Kitchen wisdom`,
   },
-  cheatsheet: {
-    label: 'Cheat Sheet',
-    description: 'Quick reference guide',
-    icon: 'List',
-    examples: ['React Hooks Cheat Sheet', 'Keto Diet Cheat Sheet'],
-    structureHint: `Create a concise reference guide.`,
+  'meal-plan': {
+    label: 'Meal Plan',
+    description: 'Weekly or monthly meal planning guide',
+    icon: 'Calendar',
+    defaultItemCount: 7,
+    examples: ['7-Day Healthy Meal Plan', 'Budget-Friendly Weekly Menu'],
+    structureHint: `Create a practical meal planning guide.`,
   },
-  guide: {
-    label: 'Mini-Guide',
-    description: 'Short educational content relative to a specific topic',
-    icon: 'Book',
-    examples: ['Beginners Guide to SEO', 'First Time Homebuyer Guide'],
-    structureHint: `Create an educational guide.`,
+  'cuisine-guide': {
+    label: 'Cuisine Guide',
+    description: 'Deep dive into a specific cuisine',
+    icon: 'Globe',
+    examples: ['Essential Thai Cooking', 'Italian Kitchen Basics'],
+    structureHint: `Create an educational cuisine exploration.`,
   },
-  template: {
-    label: 'Template',
-    description: 'Fill-in-the-blank template',
-    icon: 'Copy',
-    examples: ['Email Marketing Templates', 'Social Media Caption Templates'],
-    structureHint: `Create a usable template structure.`,
+  'cooking-tips': {
+    label: 'Cooking Tips',
+    description: 'Pro tips and kitchen hacks',
+    icon: 'Lightbulb',
+    examples: ['Knife Skills 101', '25 Time-Saving Kitchen Hacks'],
+    structureHint: `Create actionable cooking advice.`,
   },
-  swipefile: {
-    label: 'Swipe File',
-    description: 'Copy-and-paste examples',
-    icon: 'Files',
-    examples: ['High Converting Headlines', 'Sales Email Swipe File'],
-    structureHint: `Create a collection of proven examples.`,
+  'ingredient-guide': {
+    label: 'Ingredient Guide',
+    description: 'Master a specific ingredient',
+    icon: 'Leaf',
+    examples: ['Everything About Garlic', 'Seasonal Produce Guide'],
+    structureHint: `Create a comprehensive ingredient reference.`,
   },
-  resourcelist: {
-    label: 'Resource List',
-    description: 'Curated list of tools/resources',
-    icon: 'ListBullets',
-    examples: ['Best AI Tools for 2024', 'Remote Work Tools'],
-    structureHint: `Create a curated list of valuable resources.`,
+  'diet-plan': {
+    label: 'Diet Plan',
+    description: 'Specialized dietary recipes',
+    icon: 'Heart',
+    examples: ['Keto Recipe Collection', 'Plant-Based Starter Guide'],
+    structureHint: `Create diet-focused recipe content.`,
   },
-  worksheet: {
-    label: 'Worksheet',
-    description: 'Interactive worksheet',
-    icon: 'Pencil',
-    examples: ['Goal Setting Worksheet', 'Budget Planner Worksheet'],
-    structureHint: `Create an interactive worksheet.`,
+  'baking-guide': {
+    label: 'Baking Guide',
+    description: 'Baking recipes and techniques',
+    icon: 'Cake',
+    examples: ['Sourdough for Beginners', 'Perfect Pie Crusts'],
+    structureHint: `Create detailed baking instructions.`,
   },
 };
 
 /**
- * Pre-built Templates - Checklist only
+ * Pre-built Templates - Recipe Collections
  */
-export const TEMPLATES: LeadMagnetTemplate[] = [
+export const TEMPLATES: CookbookTemplate[] = [
   {
-    id: 'product-launch-checklist',
-    name: 'Product Launch Checklist',
-    description: 'Everything you need before, during, and after launch',
-    type: 'checklist',
-    category: 'Marketing',
-    thumbnail: '/templates/product-launch.png',
-    defaultTitle: 'The Ultimate Product Launch Checklist',
-    defaultPrompt: 'Create a comprehensive product launch checklist covering pre-launch preparation, launch day activities, and post-launch follow-up tasks for digital product creators.',
+    id: 'weeknight-dinners',
+    name: '30-Minute Weeknight Dinners',
+    description: 'Quick and easy dinners for busy families',
+    type: 'recipe-collection',
+    category: 'Quick Meals',
+    thumbnail: '/templates/weeknight-dinners.png',
+    defaultTitle: '30-Minute Weeknight Dinners',
+    defaultPrompt: 'Create a collection of quick, family-friendly dinner recipes that can be prepared in 30 minutes or less, using common pantry ingredients.',
     exampleContent: '',
     defaultDesign: {
-      primaryColor: '#8B5CF6',
-      template: 'modern-checklist',
+      primaryColor: '#ea580c',
+      template: 'modern-recipe',
     },
     popular: true,
     isPremium: false,
   },
   {
-    id: 'website-audit-checklist',
-    name: 'Website Audit Checklist',
-    description: 'SEO, performance, and UX audit in one checklist',
-    type: 'checklist',
-    category: 'Marketing',
-    thumbnail: '/templates/website-audit.png',
-    defaultTitle: 'Complete Website Audit Checklist',
-    defaultPrompt: 'Create a website audit checklist covering SEO fundamentals, page speed optimization, mobile responsiveness, user experience, and conversion optimization.',
+    id: 'healthy-meal-prep',
+    name: 'Healthy Meal Prep Guide',
+    description: 'Plan and prep your week in advance',
+    type: 'meal-plan',
+    category: 'Meal Planning',
+    thumbnail: '/templates/meal-prep.png',
+    defaultTitle: 'Weekly Healthy Meal Prep Guide',
+    defaultPrompt: 'Create a comprehensive meal prep guide with recipes that can be prepared on Sunday and enjoyed throughout the week, focusing on balanced nutrition.',
     exampleContent: '',
     defaultDesign: {
-      primaryColor: '#0EA5E9',
-      template: 'clean-checklist',
+      primaryColor: '#16a34a',
+      template: 'clean-recipe',
     },
     popular: true,
     isPremium: false,
   },
   {
-    id: 'morning-routine-checklist',
-    name: 'Morning Routine Checklist',
-    description: 'Build the perfect productive morning',
-    type: 'checklist',
-    category: 'Productivity',
-    thumbnail: '/templates/morning-routine.png',
-    defaultTitle: 'The Perfect Morning Routine Checklist',
-    defaultPrompt: 'Create a morning routine checklist for peak productivity covering wake-up rituals, mindfulness, exercise, nutrition, and planning the day ahead.',
+    id: 'comfort-food-classics',
+    name: 'Comfort Food Classics',
+    description: 'Cozy recipes for the soul',
+    type: 'recipe-collection',
+    category: 'Comfort Food',
+    thumbnail: '/templates/comfort-food.png',
+    defaultTitle: 'Comfort Food Classics Cookbook',
+    defaultPrompt: 'Create a collection of heartwarming comfort food recipes including soups, casseroles, and classic dishes that bring warmth and nostalgia.',
     exampleContent: '',
     defaultDesign: {
-      primaryColor: '#F59E0B',
-      template: 'clean-checklist',
+      primaryColor: '#d97706',
+      template: 'clean-recipe',
     },
     popular: true,
     isPremium: false,
@@ -130,21 +131,21 @@ export const TEMPLATES: LeadMagnetTemplate[] = [
 /**
  * Get templates by type
  */
-export const getTemplatesByType = (type: LeadMagnetType): LeadMagnetTemplate[] => {
+export const getTemplatesByType = (type: CookbookType): CookbookTemplate[] => {
   return TEMPLATES.filter(t => t.type === type);
 };
 
 /**
  * Get popular templates
  */
-export const getPopularTemplates = (): LeadMagnetTemplate[] => {
+export const getPopularTemplates = (): CookbookTemplate[] => {
   return TEMPLATES.filter(t => t.popular);
 };
 
 /**
  * Get free templates
  */
-export const getFreeTemplates = (): LeadMagnetTemplate[] => {
+export const getFreeTemplates = (): CookbookTemplate[] => {
   return TEMPLATES.filter(t => !t.isPremium);
 };
 

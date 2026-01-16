@@ -1,6 +1,6 @@
 import { getApiUrl } from './api';
-import type { GenerationRequest, GenerationResponse, LeadMagnetType, Tone, Length } from './types';
-import { LEAD_MAGNET_TYPES } from './templates';
+import type { GenerationRequest, GenerationResponse, CookbookType, Tone, Length } from './types';
+import { COOKBOOK_TYPES } from './templates';
 
 /**
  * Format AI-generated content (markdown) into proper HTML
@@ -138,25 +138,25 @@ function formatContentToHtml(text: string): string {
 }
 
 /**
- * Generate lead magnet content via dedicated Lead Magnet API
- * Uses the new /api/lead-magnet endpoint on Inkfluence backend
+ * Generate cookbook content via dedicated Cookbook Buddy API
+ * Uses the /api/cookbook-buddy endpoint on Inkfluence backend
  */
-export async function generateLeadMagnetContent(
+export async function generateCookbookContent(
   request: GenerationRequest
 ): Promise<GenerationResponse> {
-  // Use the dedicated lead magnet endpoint
-  const endpoint = getApiUrl('/api/lead-magnet');
+  // Use the dedicated cookbook endpoint
+  const endpoint = getApiUrl('/api/cookbook-buddy');
 
-  console.log('[AI Service] Generating lead magnet via:', endpoint);
+  console.log('[AI Service] Generating cookbook via:', endpoint);
 
   try {
-    // Build the request in the format the new lead-magnet API expects
+    // Build the request in the format the new cookbook-buddy API expects
     const requestBody = {
-      userId: request.userId || 'lead-magnet-guest',
+      userId: request.userId || 'cookbook-guest',
       topic: `${request.title}: ${request.prompt}`,
-      targetAudience: request.targetAudience || 'general audience',
+      targetAudience: request.targetAudience || 'home cooks',
       tone: mapTone(request.tone),
-      format: request.type || 'checklist',
+      format: request.type || 'recipe-collection',
       length: request.length || 'standard',
     };
 
@@ -189,9 +189,15 @@ export async function generateLeadMagnetContent(
     }
 
     const data = await response.json();
-    console.log('[AI Service] Got response data:', data.success);
+    console.log('[AI Service] Initial response data:', JSON.stringify(data));
 
-    // Get the raw content and format it to HTML
+    // Check if this is an async job (Inngest queued)
+    if (data.jobId && data.status === 'pending') {
+      console.log('[AI Service] Job queued, starting polling for jobId:', data.jobId);
+      return await pollForJobCompletion(data.jobId, endpoint);
+    }
+
+    // If we got content directly (no async), return it
     const rawContent = data.content || data.html || data.result || '';
     const htmlContent = formatContentToHtml(rawContent);
 
@@ -208,6 +214,75 @@ export async function generateLeadMagnetContent(
     throw error;
   }
 }
+
+/**
+ * Poll for async job completion (Inngest)
+ */
+async function pollForJobCompletion(
+  jobId: string,
+  endpoint: string,
+  maxAttempts = 60,
+  intervalMs = 3000
+): Promise<GenerationResponse> {
+  console.log(`[AI Service] Polling for job ${jobId}, max ${maxAttempts} attempts`);
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    // Wait before polling (except first attempt)
+    if (attempt > 1) {
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    }
+
+    try {
+      const pollUrl = `${endpoint}?jobId=${jobId}`;
+      console.log(`[AI Service] Poll attempt ${attempt}/${maxAttempts}: ${pollUrl}`);
+
+      const response = await fetch(pollUrl, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        console.warn(`[AI Service] Poll returned status ${response.status}`);
+        continue;
+      }
+
+      const data = await response.json();
+      console.log(`[AI Service] Poll response:`, JSON.stringify(data));
+
+      if (data.status === 'completed' && data.content) {
+        console.log('[AI Service] Job completed successfully!');
+        const rawContent = data.content || '';
+        const htmlContent = formatContentToHtml(rawContent);
+
+        return {
+          success: true,
+          content: htmlContent,
+          rawContent: rawContent,
+          wordCount: data.wordCount || countWords(rawContent),
+          itemCount: data.itemCount,
+        };
+      }
+
+      if (data.status === 'failed') {
+        throw new Error(data.error || 'Generation failed');
+      }
+
+      // Still pending, continue polling
+      console.log(`[AI Service] Job still ${data.status}, continuing to poll...`);
+    } catch (error) {
+      console.error(`[AI Service] Poll attempt ${attempt} error:`, error);
+      // Continue polling unless it's a definitive failure
+      if (attempt === maxAttempts) {
+        throw error;
+      }
+    }
+  }
+
+  throw new Error('Generation timed out. Please try again.');
+}
+
+// Legacy alias for compatibility
+export const generateLeadMagnetContent = generateCookbookContent;
 
 /**
  * Map our tone values to the API's expected tones
@@ -231,10 +306,10 @@ function countWords(html: string): number {
 }
 
 /**
- * Build system prompt for lead magnet generation
+ * Build system prompt for cookbook generation
  */
-export function buildSystemPrompt(type: LeadMagnetType, tone: Tone): string {
-  const typeInfo = LEAD_MAGNET_TYPES[type];
+export function buildSystemPrompt(type: CookbookType, tone: Tone): string {
+  const typeInfo = COOKBOOK_TYPES[type];
 
   const toneInstructions = {
     professional: 'Use a polished, authoritative tone. Sound confident and expert.',
@@ -243,7 +318,7 @@ export function buildSystemPrompt(type: LeadMagnetType, tone: Tone): string {
     persuasive: 'Use compelling, action-oriented language. Focus on benefits and outcomes.',
   };
 
-  return `You are an expert copywriter specializing in high-converting lead magnets.
+  return `You are an expert culinary content creator specializing in recipes and cooking guides.
 
 You are creating a ${typeInfo.label}: ${typeInfo.description}
 
@@ -251,12 +326,13 @@ TONE: ${toneInstructions[tone]}
 
 FORMAT GUIDELINES:
 - Use clear, scannable formatting
-- Include actionable, specific content
-- Make it immediately valuable
-- Keep paragraphs short (2-3 sentences max)
-- Use bullet points and numbered lists where appropriate
-- Include a compelling introduction
-- End with a clear next step or CTA
+- Include practical, actionable recipes
+- Make it immediately valuable for home cooks
+- Keep instructions clear and step-by-step
+- Use bullet points for ingredients
+- Use numbered lists for cooking steps
+- Include prep time, cook time, and servings
+- Add helpful tips and variations
 
 OUTPUT FORMAT:
 Return well-structured HTML content with appropriate headings (h2, h3), paragraphs, lists (ul/ol), and emphasis (strong, em) tags.
@@ -268,12 +344,12 @@ Do not include <html>, <head>, or <body> tags - just the content HTML.`;
  */
 export function buildUserPrompt(request: GenerationRequest): string {
   const lengthGuide = {
-    short: '500-800 words, focused and concise',
-    standard: '1000-1500 words, comprehensive and detailed',
-    detailed: '2000-3000 words, thorough and in-depth',
+    short: '300-500 words, focused and concise (2-3 recipes)',
+    standard: '800-1200 words, comprehensive collection (5-7 recipes)',
+    detailed: '1500-2500 words, complete cookbook (10-12 recipes)',
   };
 
-  let prompt = `Create a ${LEAD_MAGNET_TYPES[request.type].label} about: ${request.title}
+  let prompt = `Create a ${COOKBOOK_TYPES[request.type].label} about: ${request.title}
 
 ${request.prompt}
 
@@ -284,11 +360,11 @@ TARGET LENGTH: ${lengthGuide[request.length]}`;
   }
 
   if (request.niche) {
-    prompt += `\n\nNICHE/INDUSTRY: ${request.niche}`;
+    prompt += `\n\nCUISINE/STYLE: ${request.niche}`;
   }
 
-  if (request.itemCount && (request.type === 'checklist' || request.type === 'resourcelist')) {
-    prompt += `\n\nNUMBER OF ITEMS: ${request.itemCount}`;
+  if (request.itemCount && (request.type === 'recipe-collection' || request.type === 'meal-plan')) {
+    prompt += `\n\nNUMBER OF RECIPES: ${request.itemCount}`;
   }
 
   return prompt;
@@ -311,9 +387,9 @@ export function estimateGenerationTime(length: Length): number {
  */
 export function getLengthRange(length: Length): { min: number; max: number } {
   const ranges = {
-    short: { min: 500, max: 800 },
-    standard: { min: 1000, max: 1500 },
-    detailed: { min: 2000, max: 3000 },
+    short: { min: 300, max: 500 },
+    standard: { min: 800, max: 1200 },
+    detailed: { min: 1500, max: 2500 },
   };
   return ranges[length];
 }

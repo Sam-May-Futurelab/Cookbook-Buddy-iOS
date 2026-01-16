@@ -25,7 +25,7 @@ export function TermsOfServicePage() {
                     <section className="mb-8">
                         <h2 className="text-xl font-semibold mb-4">1. Acceptance of Terms</h2>
                         <p className="text-muted-foreground mb-4">
-                            By accessing or using LeadMagnet AI ("the App"), you agree to be bound by
+                            By accessing or using Cookbook Buddy ("the App"), you agree to be bound by
                             these Terms of Service. If you do not agree to these terms, do not use the App.
                         </p>
                     </section>
@@ -33,8 +33,8 @@ export function TermsOfServicePage() {
                     <section className="mb-8">
                         <h2 className="text-xl font-semibold mb-4">2. Description of Service</h2>
                         <p className="text-muted-foreground mb-4">
-                            LeadMagnet AI is an AI-powered application that helps users create lead magnets
-                            including ebooks, checklists, guides, and other marketing materials. The service
+                            Cookbook Buddy is an AI-powered application that helps users create cookbooks
+                            including recipe collections, meal plans, and cooking guides. The service
                             uses artificial intelligence to generate content based on your inputs.
                         </p>
                     </section>
@@ -57,7 +57,7 @@ export function TermsOfServicePage() {
 
                         <h3 className="text-lg font-medium mb-2">4.1 Free Plan</h3>
                         <p className="text-muted-foreground mb-4">
-                            The free plan allows you to create 1 lead magnet with basic features.
+                            The free plan allows you to create 1 cookbook with basic features.
                             Exports will include a watermark.
                         </p>
 
@@ -119,7 +119,7 @@ export function TermsOfServicePage() {
                     <section className="mb-8">
                         <h2 className="text-xl font-semibold mb-4">6. Intellectual Property</h2>
                         <p className="text-muted-foreground mb-4">
-                            The App, including its design, features, and code, is owned by LeadMagnet AI
+                            The App, including its design, features, and code, is owned by Cookbook Buddy
                             and protected by intellectual property laws. You may not copy, modify,
                             distribute, or reverse engineer any part of the App.
                         </p>

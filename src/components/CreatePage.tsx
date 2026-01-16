@@ -18,12 +18,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AILoading } from '@/components/ui/ai-loading';
 import { useAuth } from '@/hooks/use-auth';
-import { useLeadMagnetStore } from '@/stores/lead-magnet-store';
-import { generateLeadMagnetContent } from '@/lib/ai-service';
+import { useCookbookStore } from '@/stores/lead-magnet-store';
+import { generateCookbookContent } from '@/lib/ai-service';
 import { createLeadMagnet, checkAndIncrementUsage } from '@/lib/firebase';
 import { exportLeadMagnet, shareExport, canExportFormat } from '@/lib/export-service';
 import { PLAN_LIMITS } from '@/lib/types';
-import type { LeadMagnetType, Tone, Length, LeadMagnet } from '@/lib/types';
+import type { CookbookType, Tone, Length, Cookbook } from '@/lib/types';
 import { triggerImpactHaptic, triggerNotificationHaptic } from '@/lib/haptics';
 import { triggerCelebration } from '@/lib/confetti';
 
@@ -37,11 +37,11 @@ export function CreatePage() {
   const {
     updateCurrent,
     setGenerating,
-    addLeadMagnet,
-    updateLeadMagnet,
-  } = useLeadMagnetStore();
+    addCookbook,
+    updateCookbook,
+  } = useCookbookStore();
 
-  const selectedType: LeadMagnetType = 'checklist';
+  const selectedType: CookbookType = 'recipe-collection';
 
   const [step, setStep] = useState<Step>('details');
   const [title, setTitle] = useState('');
@@ -51,7 +51,7 @@ export function CreatePage() {
   const [tone] = useState<Tone>('friendly');
   const [length, setLength] = useState<Length>('short');
   const [generatedContent, setGeneratedContent] = useState('');
-  const [currentLeadMagnetId, setCurrentLeadMagnetId] = useState<string | null>(null);
+  const [currentCookbookId, setCurrentCookbookId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState('Preparing export...');
   const [isEditing, setIsEditing] = useState(false);
@@ -62,9 +62,9 @@ export function CreatePage() {
   useEffect(() => {
     const plan = userProfile?.plan || 'free';
     const limits = PLAN_LIMITS[plan];
-    const currentCount = userProfile?.leadMagnetsCreated || 0;
+    const currentCount = userProfile?.cookbooksCreated || 0;
 
-    if (limits.maxLeadMagnets !== -1 && currentCount >= limits.maxLeadMagnets) {
+    if (limits.maxCookbooks !== -1 && currentCount >= limits.maxCookbooks) {
       navigate('/paywall?trigger=limit');
     }
   }, [userProfile, navigate]);
@@ -89,12 +89,22 @@ export function CreatePage() {
       return;
     }
 
+    // Check usage limit BEFORE generating
+    const plan = userProfile?.plan || 'free';
+    const limits = PLAN_LIMITS[plan];
+    const currentCount = userProfile?.cookbooksCreated || 0;
+
+    if (limits.maxCookbooks !== -1 && currentCount >= limits.maxCookbooks) {
+      navigate('/paywall?trigger=limit');
+      return;
+    }
+
     setStep('generating');
-    setGenerating(true, 'Preparing your checklist...');
+    setGenerating(true, 'Preparing your recipes...');
     triggerImpactHaptic('medium');
 
     try {
-      const response = await generateLeadMagnetContent({
+      const response = await generateCookbookContent({
         type: selectedType,
         title,
         prompt,
@@ -125,8 +135,8 @@ export function CreatePage() {
             itemCount: response.itemCount,
             downloadCount: 0,
             design: {
-              primaryColor: '#8B5CF6',
-              secondaryColor: '#A78BFA',
+              primaryColor: '#ea580c',
+              secondaryColor: '#f97316',
               backgroundColor: '#FFFFFF',
               textColor: '#1F2937',
               fontFamily: 'Inter',
@@ -147,15 +157,15 @@ export function CreatePage() {
         const plan = userProfile?.plan || 'free';
         const limits = PLAN_LIMITS[plan];
         try {
-          await checkAndIncrementUsage(user.uid, limits.maxLeadMagnets);
+          await checkAndIncrementUsage(user.uid, limits.maxCookbooks);
           // Refresh profile to update usage count in UI
           await refreshProfile();
         } catch (e) {
           console.log('Could not increment usage count:', e);
         }
 
-        // Create the full lead magnet object
-        const newLeadMagnet: LeadMagnet = {
+        // Create the full cookbook object
+        const newCookbook: Cookbook = {
           id,
           userId: user.uid,
           title,
@@ -173,8 +183,8 @@ export function CreatePage() {
           createdAt: new Date(),
           updatedAt: new Date(),
           design: {
-            primaryColor: '#8B5CF6',
-            secondaryColor: '#A78BFA',
+            primaryColor: '#ea580c',
+            secondaryColor: '#f97316',
             backgroundColor: '#FFFFFF',
             textColor: '#1F2937',
             fontFamily: 'Inter',
@@ -185,8 +195,8 @@ export function CreatePage() {
         };
 
         // Save to local store (persisted to localStorage)
-        addLeadMagnet(newLeadMagnet);
-        setCurrentLeadMagnetId(id);
+        addCookbook(newCookbook);
+        setCurrentCookbookId(id);
 
         updateCurrent({ id, content: response.content });
       } else {
@@ -213,18 +223,18 @@ export function CreatePage() {
   const renderDetailsForm = () => (
     <div className="max-w-3xl mx-auto py-4">
       <div className="mb-4 space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight">Create Your Lead Magnet</h1>
-        <p className="text-sm text-muted-foreground">Tell us what you want to create and we'll make a lead magnet that converts.</p>
+        <h1 className="text-2xl font-bold tracking-tight">Create Your Cookbook</h1>
+        <p className="text-sm text-muted-foreground">Tell us what you want to cook and we'll create a recipe collection for you.</p>
       </div>
 
       <Card className="shadow-sm border-border/60">
         <CardContent className="p-6 space-y-5">
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-sm font-medium">Title</Label>
+            <Label htmlFor="title" className="text-sm font-medium">Cookbook Title</Label>
             <Input
               id="title"
-              placeholder="e.g., The Ultimate Product Launch Checklist"
+              placeholder="e.g., 30-Minute Weeknight Dinners"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="h-10"
@@ -233,10 +243,10 @@ export function CreatePage() {
 
           {/* Prompt */}
           <div className="space-y-2">
-            <Label htmlFor="prompt" className="text-sm font-medium">What should it cover?</Label>
+            <Label htmlFor="prompt" className="text-sm font-medium">What recipes do you want?</Label>
             <Textarea
               id="prompt"
-              placeholder="Describe the content, key points, or topics you want covered (e.g., for entrepreneurs...)"
+              placeholder="Describe the recipes, cuisine, dietary needs, or themes (e.g., healthy family dinners, Italian pasta dishes...)"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               rows={6}
@@ -246,7 +256,7 @@ export function CreatePage() {
 
           {/* Length */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Length</Label>
+            <Label className="text-sm font-medium">Collection Size</Label>
             <Select
               value={length}
               onValueChange={(v) => {
@@ -262,16 +272,16 @@ export function CreatePage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="short">Short (500-800 words)</SelectItem>
+                <SelectItem value="short">Quick (3-5 recipes)</SelectItem>
                 <SelectItem value="standard">
                   <span className="flex items-center gap-2">
-                    Standard (1000-1500 words)
+                    Standard (6-10 recipes)
                     {(userProfile?.plan || 'free') === 'free' && <Lock size={14} className="text-muted-foreground" />}
                   </span>
                 </SelectItem>
                 <SelectItem value="detailed">
                   <span className="flex items-center gap-2">
-                    Detailed (2000-3000 words)
+                    Complete (12-15 recipes)
                     {(userProfile?.plan || 'free') === 'free' && <Lock size={14} className="text-muted-foreground" />}
                   </span>
                 </SelectItem>
@@ -288,7 +298,7 @@ export function CreatePage() {
             disabled={!title || !prompt}
           >
             <Sparkle size={18} weight="fill" />
-            Generate Lead Magnet
+            Generate Cookbook
             <ArrowRight size={18} />
           </Button>
         </CardContent>
@@ -300,13 +310,8 @@ export function CreatePage() {
     <div className="max-w-md mx-auto py-12">
       <AILoading
         variant="magic"
-        messages={[
-          'Analyzing your topic...',
-          'Drafting content...',
-          'Polishing items...',
-          'Adding finishing touches...',
-        ]}
-        currentOperation="Creating your lead magnet"
+        currentOperation="Creating your cookbook"
+        expectedDuration={length === 'detailed' ? 180 : length === 'standard' ? 90 : 45}
       />
     </div>
   );
@@ -328,8 +333,8 @@ export function CreatePage() {
     triggerImpactHaptic('medium');
 
     try {
-      const leadMagnet: LeadMagnet = {
-        id: currentLeadMagnetId || `local-${Date.now()}`,
+      const cookbook: Cookbook = {
+        id: currentCookbookId || `local-${Date.now()}`,
         userId: user?.uid || '',
         title,
         type: selectedType,
@@ -344,8 +349,8 @@ export function CreatePage() {
         createdAt: new Date(),
         updatedAt: new Date(),
         design: {
-          primaryColor: '#8B5CF6',
-          secondaryColor: '#A78BFA',
+          primaryColor: '#ea580c',
+          secondaryColor: '#f97316',
           backgroundColor: '#FFFFFF',
           textColor: '#1F2937',
           fontFamily: 'Inter',
@@ -358,7 +363,7 @@ export function CreatePage() {
       setExportProgress('Generating PDF...');
       const result = await exportLeadMagnet({
         format,
-        leadMagnet,
+        leadMagnet: cookbook,
         userPlan: plan,
         contentElement: contentRef.current!,
       });
@@ -411,8 +416,8 @@ export function CreatePage() {
     setGeneratedContent(newHtml);
     setIsEditing(false);
     // Update in store if we have an ID
-    if (currentLeadMagnetId) {
-      updateLeadMagnet(currentLeadMagnetId, { content: newHtml });
+    if (currentCookbookId) {
+      updateCookbook(currentCookbookId, { content: newHtml });
     }
     triggerNotificationHaptic('success');
   };
@@ -666,7 +671,7 @@ export function CreatePage() {
             setTitle('');
             setPrompt('');
             setGeneratedContent('');
-            setCurrentLeadMagnetId(null);
+            setCurrentCookbookId(null);
             triggerImpactHaptic('light');
           }}
           className="gap-2"

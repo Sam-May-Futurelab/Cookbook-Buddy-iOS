@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Plus, Gear, House } from '@phosphor-icons/react';
+import { Plus, Gear } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { triggerImpactHaptic } from '@/lib/haptics';
@@ -28,8 +28,8 @@ export function Header() {
           className="flex items-center gap-2"
           onClick={() => triggerImpactHaptic('light')}
         >
-          <House size={24} weight="fill" className="text-primary" />
-          <span className="font-bold text-lg hidden sm:inline">Lead Magnet AI</span>
+          <img src="/logo.png" alt="Cookbook Buddy" className="w-8 h-8 rounded-lg" />
+          <span className="font-bold text-lg hidden sm:inline">Cookbook Buddy</span>
         </Link>
 
         {/* Navigation */}

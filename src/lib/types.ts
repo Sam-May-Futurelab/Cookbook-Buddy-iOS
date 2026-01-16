@@ -1,11 +1,11 @@
 // ============================================
-// LEAD MAGNET DATA MODELS
+// COOKBOOK DATA MODELS
 // ============================================
 
 /**
- * Lead Magnet Type
+ * Cookbook Type
  */
-export type LeadMagnetType = 'checklist' | 'cheatsheet' | 'guide' | 'template' | 'swipefile' | 'resourcelist' | 'worksheet';
+export type CookbookType = 'recipe-collection' | 'meal-plan' | 'cuisine-guide' | 'cooking-tips' | 'ingredient-guide' | 'diet-plan' | 'baking-guide';
 
 /**
  * Generation tone options
@@ -18,15 +18,15 @@ export type Tone = 'professional' | 'friendly' | 'educational' | 'persuasive';
 export type Length = 'short' | 'standard' | 'detailed';
 
 /**
- * Lead Magnet status
+ * Cookbook status
  */
-export type LeadMagnetStatus = 'draft' | 'generating' | 'complete' | 'error';
+export type CookbookStatus = 'draft' | 'generating' | 'complete' | 'error';
 
 /**
- * Core Lead Magnet Entity
- * This is the main data structure (simpler than EbookProject)
+ * Core Cookbook Entity
+ * This is the main data structure
  */
-export interface LeadMagnet {
+export interface Cookbook {
   id: string;
   userId: string;
 
@@ -34,7 +34,7 @@ export interface LeadMagnet {
   title: string;
   subtitle?: string;
   description?: string;
-  type: LeadMagnetType;
+  type: CookbookType;
   content: string;           // Generated HTML content
   rawContent?: string;       // Plain text version
 
@@ -49,12 +49,12 @@ export interface LeadMagnet {
   prompt?: string;           // Original user prompt
 
   // Design
-  design: LeadMagnetDesign;
+  design: CookbookDesign;
 
   // Metadata
-  status: LeadMagnetStatus;
+  status: CookbookStatus;
   wordCount: number;
-  itemCount?: number;        // For checklists/lists
+  itemCount?: number;        // For recipe counts
   createdAt: Date;
   updatedAt: Date;
   generatedAt?: Date;
@@ -65,9 +65,9 @@ export interface LeadMagnet {
 }
 
 /**
- * Lead Magnet Design Settings
+ * Cookbook Design Settings
  */
-export interface LeadMagnetDesign {
+export interface CookbookDesign {
   // Colors
   primaryColor: string;
   secondaryColor: string;
@@ -91,13 +91,13 @@ export interface LeadMagnetDesign {
 }
 
 /**
- * Lead Magnet Template
+ * Cookbook Template
  */
-export interface LeadMagnetTemplate {
+export interface CookbookTemplate {
   id: string;
   name: string;
   description: string;
-  type: LeadMagnetType;
+  type: CookbookType;
   category: string;
   thumbnail: string;
 
@@ -107,7 +107,7 @@ export interface LeadMagnetTemplate {
   exampleContent: string;
 
   // Design defaults
-  defaultDesign: Partial<LeadMagnetDesign>;
+  defaultDesign: Partial<CookbookDesign>;
 
   // Metadata
   popular: boolean;
@@ -130,11 +130,11 @@ export interface UserProfile {
   purchaseDate?: Date;
 
   // Usage
-  leadMagnetsCreated: number;
+  cookbooksCreated: number;
 
   // Preferences
   defaultTone?: Tone;
-  defaultDesign?: Partial<LeadMagnetDesign>;
+  defaultDesign?: Partial<CookbookDesign>;
 
   createdAt: Date;
   updatedAt: Date;
@@ -144,7 +144,7 @@ export interface UserProfile {
  * Usage Limits by Plan
  */
 export interface UsageLimits {
-  maxLeadMagnets: number;
+  maxCookbooks: number;
   exportFormats: ('pdf' | 'html')[];
   premiumTemplates: boolean;
   priorityGeneration: boolean;
@@ -152,19 +152,19 @@ export interface UsageLimits {
 
 export const PLAN_LIMITS: Record<UserProfile['plan'], UsageLimits> = {
   free: {
-    maxLeadMagnets: 1,
+    maxCookbooks: 1,
     exportFormats: ['pdf'],
     premiumTemplates: false,
     priorityGeneration: false,
   },
   pro: {
-    maxLeadMagnets: 10,
+    maxCookbooks: 10,
     exportFormats: ['pdf', 'html'],
     premiumTemplates: true,
     priorityGeneration: false,
   },
   unlimited: {
-    maxLeadMagnets: -1, // Unlimited
+    maxCookbooks: -1, // Unlimited
     exportFormats: ['pdf', 'html'],
     premiumTemplates: true,
     priorityGeneration: true,
@@ -175,14 +175,14 @@ export const PLAN_LIMITS: Record<UserProfile['plan'], UsageLimits> = {
  * AI Generation Request
  */
 export interface GenerationRequest {
-  type: LeadMagnetType;
+  type: CookbookType;
   title: string;
   prompt: string;
   targetAudience?: string;
   niche?: string;
   tone: Tone;
   length: Length;
-  itemCount?: number;        // For checklists
+  itemCount?: number;        // For recipe counts
   userId?: string;           // For rate limiting
 }
 
@@ -199,7 +199,7 @@ export interface GenerationResponse {
 }
 
 // ============================================
-// COMPARISON: LeadMagnet vs EbookProject
+// COMPARISON: Cookbook vs EbookProject
 // ============================================
 /**
  * EbookProject (Inkfluence) has:
@@ -210,10 +210,17 @@ export interface GenerationResponse {
  * - Multiple export formats
  * - Writing analytics
  * 
- * LeadMagnet (this app) has:
+ * Cookbook (this app) has:
  * - Single content block (no chapters)
  * - Simpler design settings
  * - Type-specific templates
- * - Focus on single-page assets
+ * - Focus on recipe collections
  * - Quick generation & export
  */
+
+// Legacy aliases for compatibility
+export type LeadMagnetType = CookbookType;
+export type LeadMagnetStatus = CookbookStatus;
+export type LeadMagnet = Cookbook;
+export type LeadMagnetDesign = CookbookDesign;
+export type LeadMagnetTemplate = CookbookTemplate;

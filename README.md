@@ -1,12 +1,12 @@
-# 🧲 Lead Magnet AI
+# 🍳 Cookbook Buddy
 
-Create high-converting lead magnets in seconds with AI. Built with the same tech stack as Inkfluence AI for iOS.
+Create beautiful cookbooks and recipe collections in seconds with AI. Built with the same tech stack as Inkfluence AI for iOS.
 
 ## 🏗️ Tech Stack
 
 **Frontend:** React 19, TypeScript, Tailwind CSS, Vite, Radix UI, Framer Motion
 
-**Backend:** Firebase (Auth, Firestore), Vercel Serverless Functions, OpenAI GPT-4
+**Backend:** Firebase (Auth, Firestore), Inkfluence AI API (for AI generation)
 
 **Mobile:** Capacitor (iOS/Android)
 
@@ -15,26 +15,24 @@ Create high-converting lead magnets in seconds with AI. Built with the same tech
 ## 📁 Project Structure
 
 ```
-├── api/                    # Vercel serverless functions
-│   └── generate.ts         # AI content generation endpoint
 ├── src/
 │   ├── components/         # React components
 │   │   ├── ui/            # Base UI components (Shadcn-style)
 │   │   ├── Header.tsx     # App header with navigation
 │   │   ├── HomePage.tsx   # Landing page
-│   │   ├── CreatePage.tsx # Lead magnet creation flow
-│   │   ├── DashboardPage.tsx # User's lead magnets
+│   │   ├── CreatePage.tsx # Cookbook creation flow
+│   │   ├── DashboardPage.tsx # User's cookbooks
 │   │   └── AuthModal.tsx  # Sign-in modal
 │   ├── hooks/             # Custom React hooks
 │   │   ├── use-auth.tsx   # Firebase auth hook
 │   │   └── use-theme.ts   # Theme management
 │   ├── stores/            # Zustand state stores
-│   │   └── lead-magnet-store.ts
+│   │   └── lead-magnet-store.ts (cookbook-store)
 │   ├── lib/               # Utilities and services
 │   │   ├── firebase.ts    # Firebase config & operations
-│   │   ├── ai-service.ts  # AI generation service
+│   │   ├── ai-service.ts  # AI generation service (calls Inkfluence API)
 │   │   ├── types.ts       # TypeScript types
-│   │   ├── templates.ts   # Lead magnet templates
+│   │   ├── templates.ts   # Cookbook templates
 │   │   ├── haptics.ts     # iOS haptic feedback
 │   │   └── utils.ts       # Utility functions
 │   └── styles/
