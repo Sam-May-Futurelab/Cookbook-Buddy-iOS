@@ -57,9 +57,12 @@ export function CreatePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState('');
   const contentRef = useRef<HTMLDivElement>(null);
+  const [hasCheckedLimit, setHasCheckedLimit] = useState(false);
 
-  // Check usage limit on mount - redirect to paywall if at limit
+  // Check usage limit on mount ONLY - redirect to paywall if at limit
   useEffect(() => {
+    if (hasCheckedLimit) return; // Only check once on mount
+    
     const plan = userProfile?.plan || 'free';
     const limits = PLAN_LIMITS[plan];
     const currentCount = userProfile?.cookbooksCreated || 0;
@@ -67,7 +70,8 @@ export function CreatePage() {
     if (limits.maxCookbooks !== -1 && currentCount >= limits.maxCookbooks) {
       navigate('/paywall?trigger=limit');
     }
-  }, [userProfile, navigate]);
+    setHasCheckedLimit(true);
+  }, [userProfile, navigate, hasCheckedLimit]);
 
   // Check for template param (pre-fill form)
   useEffect(() => {
@@ -117,9 +121,10 @@ export function CreatePage() {
       if (response.success) {
         setGeneratedContent(response.content);
 
-        // Try to save to Firestore (may fail due to permissions, but that's okay)
+        // Save to Firestore
         let id = `local-${Date.now()}`;
         try {
+          console.log('[CreatePage] Attempting to save cookbook to Firestore for user:', user.uid);
           id = await createLeadMagnet(user.uid, {
             userId: user.uid,
             title,
@@ -145,8 +150,9 @@ export function CreatePage() {
               showLogo: false,
             },
           });
+          console.log('[CreatePage] ✅ Cookbook saved to Firestore with ID:', id);
         } catch (firestoreError) {
-          console.log('Could not save to Firestore (permissions), using local ID:', firestoreError);
+          console.error('[CreatePage] ❌ Failed to save cookbook to Firestore:', firestoreError);
         }
 
         triggerNotificationHaptic('success');
@@ -651,7 +657,7 @@ export function CreatePage() {
               className="edit-textarea"
               value={editedContent}
               onChange={(e) => setEditedContent(e.target.value)}
-              placeholder="Edit your lead magnet content..."
+              placeholder="Edit your cookbook content..."
             />
           ) : (
             <div

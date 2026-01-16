@@ -32,7 +32,7 @@ import {
 } from 'firebase/firestore';
 import { Capacitor } from '@capacitor/core';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
-import type { LeadMagnet, UserProfile } from './types';
+import type { Cookbook, UserProfile } from './types';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -345,26 +345,34 @@ export const updateUserPlan = async (
 };
 
 // ============================================
-// LEAD MAGNET OPERATIONS
+// COOKBOOK OPERATIONS
 // ============================================
 
 /**
- * Create a new lead magnet
+ * Create a new cookbook
  */
-export const createLeadMagnet = async (
+export const createCookbook = async (
   userId: string,
-  leadMagnet: Omit<LeadMagnet, 'id' | 'createdAt' | 'updatedAt'>
+  cookbook: Omit<Cookbook, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<string> => {
   if (!db) {
     // Demo mode - return a fake ID
     return `demo-${Date.now()}`;
   }
 
-  const leadMagnetsRef = collection(db, 'cookbooks');
-  const newDocRef = doc(leadMagnetsRef);
+  const cookbooksRef = collection(db, 'cookbooks');
+  const newDocRef = doc(cookbooksRef);
+
+  // Sanitize data - Firestore doesn't allow undefined values
+  const sanitizedData: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(cookbook)) {
+    if (value !== undefined) {
+      sanitizedData[key] = value;
+    }
+  }
 
   await setDoc(newDocRef, {
-    ...leadMagnet,
+    ...sanitizedData,
     id: newDocRef.id,
     userId,
     createdAt: serverTimestamp(),
@@ -375,17 +383,17 @@ export const createLeadMagnet = async (
 };
 
 /**
- * Get user's lead magnets
+ * Get user's cookbooks
  */
-export const getUserLeadMagnets = async (userId: string): Promise<LeadMagnet[]> => {
+export const getUserCookbooks = async (userId: string): Promise<Cookbook[]> => {
   if (!db) {
     // Demo mode - return empty array
     return [];
   }
 
-  const leadMagnetsRef = collection(db, 'cookbooks');
+  const cookbooksRef = collection(db, 'cookbooks');
   const q = query(
-    leadMagnetsRef,
+    cookbooksRef,
     where('userId', '==', userId),
     orderBy('createdAt', 'desc')
   );
@@ -398,14 +406,14 @@ export const getUserLeadMagnets = async (userId: string): Promise<LeadMagnet[]> 
       createdAt: (data.createdAt as Timestamp)?.toDate() || new Date(),
       updatedAt: (data.updatedAt as Timestamp)?.toDate() || new Date(),
       generatedAt: (data.generatedAt as Timestamp)?.toDate() || undefined,
-    } as LeadMagnet;
+    } as Cookbook;
   });
 };
 
 /**
- * Get a single lead magnet
+ * Get a single cookbook
  */
-export const getLeadMagnet = async (id: string): Promise<LeadMagnet | null> => {
+export const getCookbook = async (id: string): Promise<Cookbook | null> => {
   if (!db) return null;
 
   const docRef = doc(db, 'cookbooks', id);
@@ -419,15 +427,15 @@ export const getLeadMagnet = async (id: string): Promise<LeadMagnet | null> => {
     createdAt: (data.createdAt as Timestamp)?.toDate() || new Date(),
     updatedAt: (data.updatedAt as Timestamp)?.toDate() || new Date(),
     generatedAt: (data.generatedAt as Timestamp)?.toDate() || undefined,
-  } as LeadMagnet;
+  } as Cookbook;
 };
 
 /**
- * Update a lead magnet
+ * Update a cookbook
  */
-export const updateLeadMagnet = async (
+export const updateCookbook = async (
   id: string,
-  updates: Partial<LeadMagnet>
+  updates: Partial<Cookbook>
 ): Promise<void> => {
   if (!db) return;
   const docRef = doc(db, 'cookbooks', id);
@@ -438,13 +446,20 @@ export const updateLeadMagnet = async (
 };
 
 /**
- * Delete a lead magnet
+ * Delete a cookbook
  */
-export const deleteLeadMagnet = async (id: string): Promise<void> => {
+export const deleteCookbook = async (id: string): Promise<void> => {
   if (!db) return;
   const docRef = doc(db, 'cookbooks', id);
   await deleteDoc(docRef);
 };
+
+// Legacy aliases for compatibility
+export const createLeadMagnet = createCookbook;
+export const getUserLeadMagnets = getUserCookbooks;
+export const getLeadMagnet = getCookbook;
+export const updateLeadMagnet = updateCookbook;
+export const deleteLeadMagnet = deleteCookbook;
 
 // ============================================
 // USAGE TRACKING

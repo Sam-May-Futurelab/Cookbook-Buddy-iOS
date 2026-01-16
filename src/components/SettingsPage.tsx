@@ -95,7 +95,7 @@ export function SettingsPage() {
             items: [
                 {
                     icon: <FileText size={18} className="text-muted-foreground" />,
-                    label: 'My Lead Magnets',
+                    label: 'My Cookbooks',
                     description: 'View all your creations',
                     action: () => {
                         triggerImpactHaptic('light');

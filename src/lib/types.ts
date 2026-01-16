@@ -158,13 +158,13 @@ export const PLAN_LIMITS: Record<UserProfile['plan'], UsageLimits> = {
     priorityGeneration: false,
   },
   pro: {
-    maxCookbooks: 10,
+    maxCookbooks: -1, // Unlimited (monthly subscription)
     exportFormats: ['pdf', 'html'],
     premiumTemplates: true,
-    priorityGeneration: false,
+    priorityGeneration: true,
   },
   unlimited: {
-    maxCookbooks: -1, // Unlimited
+    maxCookbooks: -1, // Unlimited (one-time purchase)
     exportFormats: ['pdf', 'html'],
     premiumTemplates: true,
     priorityGeneration: true,

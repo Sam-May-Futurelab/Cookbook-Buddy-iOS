@@ -70,7 +70,7 @@ export function PrivacyPolicyPage() {
                         <p className="text-muted-foreground mb-4">We use your information to:</p>
                         <ul className="list-disc pl-6 text-muted-foreground mb-4">
                             <li>Provide and maintain our service</li>
-                            <li>Generate AI-powered content for your lead magnets</li>
+                            <li>Generate AI-powered content for your cookbooks</li>
                             <li>Process your subscription payments</li>
                             <li>Send you important updates about the service</li>
                             <li>Improve and optimize the app</li>

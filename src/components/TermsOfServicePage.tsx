@@ -64,14 +64,14 @@ export function TermsOfServicePage() {
                         <h3 className="text-lg font-medium mb-2">4.2 Pro Plan</h3>
                         <p className="text-muted-foreground mb-4">
                             The Pro plan is a monthly subscription at $9.99/month (or equivalent in your
-                            local currency). It includes 10 lead magnets, watermark-free exports, and
+                            local currency). It includes unlimited cookbooks, watermark-free exports, and
                             premium features.
                         </p>
 
                         <h3 className="text-lg font-medium mb-2">4.3 Unlimited Plan</h3>
                         <p className="text-muted-foreground mb-4">
                             The Unlimited plan is a one-time purchase of $29.99 providing lifetime access
-                            to all features with unlimited lead magnets.
+                            to all features with unlimited cookbooks.
                         </p>
 
                         <h3 className="text-lg font-medium mb-2">4.4 Payment Processing</h3>

@@ -46,11 +46,11 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center">
           <div className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
-            <img src="/app-icon.png" alt="Lead Magnet AI" className="w-10 h-10" />
+            <img src="/app-icon.png" alt="Cookbook Buddy" className="w-10 h-10" />
           </div>
-          <DialogTitle className="text-2xl">Welcome to Lead Magnet AI</DialogTitle>
+          <DialogTitle className="text-2xl">Welcome to Cookbook Buddy</DialogTitle>
           <DialogDescription className="text-base">
-            Sign in to create and save your lead magnets
+            Sign in to create and save your cookbooks
           </DialogDescription>
         </DialogHeader>
 

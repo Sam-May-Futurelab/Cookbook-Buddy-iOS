@@ -33,7 +33,7 @@ export const useTheme = create<ThemeState>()(
       },
     }),
     {
-      name: 'lead-magnet-theme',
+      name: 'cookbook-buddy-theme',
       onRehydrateStorage: () => (state) => {
         if (state) {
           // Apply theme on load
