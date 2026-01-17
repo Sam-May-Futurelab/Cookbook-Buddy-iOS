@@ -58,7 +58,7 @@ const PRICING_TIERS: PricingTier[] = [
         icon: <Star size={24} weight="fill" />,
         popular: true,
         features: [
-            '10 cookbooks',
+            'Unlimited cookbooks',
             'PDF & PNG export',
             'Larger cookbooks (up to 15 recipes)',
             'All templates',
